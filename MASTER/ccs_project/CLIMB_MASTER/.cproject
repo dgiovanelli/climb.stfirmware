@@ -352,10 +352,8 @@
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="FlashROM"/>
 		<configuration configurationName="FlashOnly_ST_OAD_ExtFlash">
-			<resource resourceType="PROJECT" workspacePath="/CLIMBPerOb_NetworkState_master_GIT"/>
-		</configuration>
-		<configuration configurationName="FlashROM">
 			<resource resourceType="PROJECT" workspacePath="/CLIMBPerOb_NetworkState_master_GIT"/>
 		</configuration>
 	</storageModule>
