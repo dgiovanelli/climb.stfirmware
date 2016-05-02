@@ -330,8 +330,8 @@ extern bStatus_t GAPObserverRole_CancelDiscovery(void);
  *
  * @return      none
  */
-extern void GAPRole_createTask(void);
-
+//extern void GAPRole_createTask(void);
+extern void gapRole_taskFxn(uint32* a0, uint32* a1);
 /*-------------------------------------------------------------------
 -------------------------------------------------------------------*/
 

@@ -41,9 +41,9 @@
 
 #include "ICall.h"
 #include "bcomdef.h"
-#include "peripheralObserver.h"
-#include "CLIMBPerOb.h"
-#include "Keys_task.h"
+//#include "peripheralObserver.h"
+//#include "CLIMBPerOb.h"
+//#include "Keys_task.h"
 
 #ifdef PRINTF_ENABLED
 #include "uart_printf.h"
@@ -96,10 +96,10 @@ extern uint32_t ti_sysbios_family_arm_m3_Hwi_resetVectors;
     UartPrintf_init(UART_open(Board_UART, &uartParams));
 #endif
     /* Kick off profile - Priority 3 */
-    GAPRole_createTask();
-    
-    Keys_createTask();
-    SimpleBLEPeripheral_createTask();
+//    GAPRole_createTask();
+//
+//    Keys_createTask();
+//    SimpleBLEPeripheral_createTask();
 
 #ifdef FEATURE_OAD
     {

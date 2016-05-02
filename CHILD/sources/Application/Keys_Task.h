@@ -95,8 +95,8 @@ typedef struct
 /*
  * Create the IR temperature sensor task
  */
-void Keys_createTask(void);
-
+//void Keys_createTask(void);
+extern void keysTaskFxn(uint32* a0, uint32* a1);
 
 void Keys_Init(keysEventCBs_t *pAppCallbacks);
 /*********************************************************************

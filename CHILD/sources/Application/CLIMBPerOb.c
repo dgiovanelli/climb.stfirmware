@@ -314,8 +314,8 @@ static Queue_Handle appMsgQueue;
 static uint16_t events;
 
 // Task configuration
-Task_Struct sbpTask;
-Char sbpTaskStack[SBP_TASK_STACK_SIZE];
+//Task_Struct sbpTask;
+//Char sbpTaskStack[SBP_TASK_STACK_SIZE];
 
 static ChildClimbNodeStateType_t nodeState = BY_MYSELF;
 
@@ -425,7 +425,7 @@ static myGapDevRec_t* masterListArray = NULL;
 ////TASK FUNCTIONS
 static void SimpleBLEPeripheral_init( void );
 static void nodeListInit(void);
-static void SimpleBLEPeripheral_taskFxn(UArg a0, UArg a1);
+//static void SimpleBLEPeripheral_taskFxn(UArg a0, UArg a1);
 
 ////GENERIC BLE STACK SUPPORT FUNCTIONS - EVENTS,MESSAGES ecc
 static uint8_t BLE_processStackMsg(ICall_Hdr *pMsg);
@@ -531,18 +531,18 @@ static climbProfileCBs_t SimpleBLEPeripheral_climbProfileCBs =
  *
  * @return  None.
  */
-void SimpleBLEPeripheral_createTask(void)
-{
-  Task_Params taskParams;
-
-  // Configure task
-  Task_Params_init(&taskParams);
-  taskParams.stack = sbpTaskStack;
-  taskParams.stackSize = SBP_TASK_STACK_SIZE;
-  taskParams.priority = SBP_TASK_PRIORITY;
-
-  Task_construct(&sbpTask, SimpleBLEPeripheral_taskFxn, &taskParams, NULL);
-}
+//void SimpleBLEPeripheral_createTask(void)
+//{
+//  Task_Params taskParams;
+//
+//  // Configure task
+//  Task_Params_init(&taskParams);
+//  taskParams.stack = sbpTaskStack;
+//  taskParams.stackSize = SBP_TASK_STACK_SIZE;
+//  taskParams.priority = SBP_TASK_PRIORITY;
+//
+//  Task_construct(&sbpTask, SimpleBLEPeripheral_taskFxn, &taskParams, NULL);
+//}
 
 /*********************************************************************
  * @fn      SimpleBLEPeripheral_init
@@ -792,7 +792,7 @@ static void nodeListInit(void){
  *
  * @return  None.
  */
-static void SimpleBLEPeripheral_taskFxn(UArg a0, UArg a1)
+void CLIMB_taskFxn(uint32* a0, uint32* a1)
 {
   // Initialize application
   SimpleBLEPeripheral_init();

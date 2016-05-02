@@ -143,8 +143,8 @@ static Clock_Struct updateTimeoutClock;
 static uint16_t events = 0;
 
 // Task setup
-Task_Struct gapRoleTask;
-Char gapRoleTaskStack[GAPROLE_TASK_STACK_SIZE];
+//Task_Struct gapRoleTask;
+//Char gapRoleTaskStack[GAPROLE_TASK_STACK_SIZE];
 
 static gaprole_States_t gapRole_state;
 
@@ -225,7 +225,7 @@ static uint8_t gapObserverRoleMaxScanRes = 0;
  * LOCAL FUNCTIONS
  */
 static void gapRole_init(void);
-static void gapRole_taskFxn(UArg a0, UArg a1);
+//static void gapRole_taskFxn(UArg a0, UArg a1);
 
 static uint8      gapRole_processStackMsg(ICall_Hdr *pMsg);
 static uint8      gapRole_processGAPMsg(gapEventHdr_t *pMsg);
@@ -824,18 +824,18 @@ bStatus_t GAPRole_TerminateConnection(void)
  *
  * @return  none
  */
-void GAPRole_createTask(void)
-{
-  Task_Params taskParams;
-
-  // Configure task
-  Task_Params_init(&taskParams);
-  taskParams.stack = gapRoleTaskStack;
-  taskParams.stackSize = GAPROLE_TASK_STACK_SIZE;
-  taskParams.priority = GAPROLE_TASK_PRIORITY;
-  
-  Task_construct(&gapRoleTask, gapRole_taskFxn, &taskParams, NULL);
-}
+//void GAPRole_createTask(void)
+//{
+//  Task_Params taskParams;
+//
+//  // Configure task
+//  Task_Params_init(&taskParams);
+//  taskParams.stack = gapRoleTaskStack;
+//  taskParams.stackSize = GAPROLE_TASK_STACK_SIZE;
+//  taskParams.priority = GAPROLE_TASK_PRIORITY;
+//
+//  Task_construct(&gapRoleTask, gapRole_taskFxn, &taskParams, NULL);
+//}
 
 /*********************************************************************
  * LOCAL FUNCTION PROTOTYPES
@@ -894,7 +894,7 @@ static void gapRole_init(void)
  *
  * @return  none
  */
-static void gapRole_taskFxn(UArg a0, UArg a1)
+void gapRole_taskFxn(uint32* a0, uint32* a1)
 {  
   // Initialize profile
   gapRole_init();

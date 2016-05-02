@@ -66,7 +66,8 @@
 
 // Task configuration
 #define KEYS_TASK_PRIORITY    2
-#define KEYS_TASK_STACK_SIZE  300
+#define KEYS_TASK_STACK_SIZE  250
+
 
 #define KEY_RIGHT_EVT		      0x0001
 #define KEY_LEFT_EVT		      0x0002
@@ -108,7 +109,7 @@ static ICall_Semaphore keysSem;
 
 // Task setup
 static Task_Struct keysTask;
-static Char keysTaskStack[KEYS_TASK_STACK_SIZE];
+//static Char keysTaskStack[KEYS_TASK_STACK_SIZE];
 
 // Pins that are actively used by the application
 static PIN_Config KeysPinTable[] =
@@ -139,7 +140,7 @@ static uint8 longPressNotiSent = 0;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
-static void keysTaskFxn(UArg a0, UArg a1);
+//static void keysTaskFxn(uint32* a0, uint32* a1);
 static void Key_callback(PIN_Handle handle, PIN_Id pinId);
 static void Keys_clockHandler(UArg arg);
 static void keysTask_setEvent(uint32_t event);
@@ -147,6 +148,9 @@ static void leftKeyEvent_Handler(void);
 static void rightKeyEvent_Handler(void);
 static void relayEvent_Handler(void);
 static void longPress_Handler(void);
+#ifdef STACK_METRICS
+static void checkStackMetrics(void);
+#endif
 /*********************************************************************
  * PROFILE CALLBACKS
  */
@@ -166,18 +170,18 @@ static void longPress_Handler(void);
  *
  * @return  none
  */
-void Keys_createTask(void)
-{
-  Task_Params taskParames;
-
-  // Create the task for the state machine
-  Task_Params_init(&taskParames);
-  taskParames.stack = keysTaskStack;
-  taskParames.stackSize = KEYS_TASK_STACK_SIZE;
-  taskParames.priority = KEYS_TASK_PRIORITY;
-
-  Task_construct(&keysTask, keysTaskFxn, &taskParames, NULL);
-}
+//void Keys_createTask(void)
+//{
+//  Task_Params taskParames;
+//
+//  // Create the task for the state machine
+//  Task_Params_init(&taskParames);
+//  taskParames.stack = keysTaskStack;
+//  taskParames.stackSize = KEYS_TASK_STACK_SIZE;
+//  taskParames.priority = KEYS_TASK_PRIORITY;
+//
+//  Task_construct(&keysTask, keysTaskFxn, &taskParames, NULL);
+//}
 
 void Keys_Init(keysEventCBs_t *pAppCallbacks){
 
@@ -209,10 +213,7 @@ static void keysTaskInit(void)
 	status = PIN_registerIntCb(hGpioPinKeys, Key_callback);
 
 	// Register task with BLE stack
-	ICall_Errno err = ICall_registerApp(&keysSelfEntity, &keysSem);
-
-
-
+	ICall_registerApp(&keysSelfEntity, &keysSem);
 }
 
 /*********************************************************************
@@ -222,7 +223,7 @@ static void keysTaskInit(void)
  *
  * @return  none
  */
-static void keysTaskFxn(UArg a0, UArg a1)
+void keysTaskFxn(uint32* a0, uint32* a1)
 {
 
 	// Initialize the task
@@ -264,6 +265,9 @@ static void keysTaskFxn(UArg a0, UArg a1)
          longPress_Handler();
       }
 
+#ifdef STACK_METRICS
+      checkStackMetrics();
+#endif
     } // for
 }
 
@@ -412,6 +416,35 @@ static void keysTask_setEvent(uint32_t event)
   Semaphore_post(keysSem);
 }
 
+
+#ifdef STACK_METRICS
+static void checkStackMetrics() {
+	static uint16 maxStackUse = 0;
+
+	Task_Stat statbuf; /* declare buffer */
+	Task_stat(Task_self(), &statbuf); /* call func to get status */
+//	System_printf("\nSTACK METRICS\n");
+
+	if(statbuf.used > maxStackUse){
+		maxStackUse = statbuf.used;
+	}
+//#ifdef PRINTF_ENABLED
+//	System_printf("stack size: %d, stack pointer: 0x%x, stack base: 0x%x, used: %d, absolute max used: %d\n", statbuf.stackSize ,statbuf.sp, statbuf.stack , statbuf.used, maxStackUse);
+//	if (statbuf.used > (statbuf.stackSize * 9 / 10)) {
+//		System_printf("Over 90% of task's stack is in use.\n");
+//	}
+//#endif
+
+	//RESET UNUSED STACK
+	uint32 i;
+
+	for(i = 0; i < (statbuf.sp - statbuf.stack)-1 ; i++){ //-1 for safety, don't care warning
+		keysTaskStack[i] = 0xBE;
+	}
+
+
+}
+#endif
 /*********************************************************************
 *********************************************************************/
 

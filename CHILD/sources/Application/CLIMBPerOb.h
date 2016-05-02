@@ -68,8 +68,8 @@ extern "C"
 /*
  * Task creation function for the Simple BLE Peripheral.
  */
-extern void SimpleBLEPeripheral_createTask(void);
-
+//extern void SimpleBLEPeripheral_createTask(void);
+extern void CLIMB_taskFxn(uint32* a0, uint32* a1);
 
 /*********************************************************************
 *********************************************************************/
