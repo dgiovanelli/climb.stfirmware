@@ -69,6 +69,8 @@
 #include "CLIMBPerOb.h"
 #include "Keys_Task.h"
 
+#include "battservice.h"
+
 #include "bsp_I2c.h"
 #include "bsp_spi.h"
 #include <ti/drivers/timer/GPTimerCC26XX.h>
@@ -180,6 +182,8 @@
 #define BROADCAST_LENGTH_RESET_CMD_FLAG_CMD   0x01
 
 #define	DEFAULT_MTU_LENGTH						23
+
+#define MIN_BATT_MEAS_INTERVAL_TICKS		  3000000
 
 #ifdef FEATURE_OAD
 // The size of an OAD packet.
@@ -400,6 +404,8 @@ static uint32 wakeUpTimeout_sec_global = 0;
 static uint8 onBoardChildren = 0; //not to be used in critical context, updated on Climb_contactsCheckSendThroughGATT
 
 static uint8 devicesHeardDuringLastScan = 0;
+
+static uint32 lastBattMeas = 0;
 /*********************************************************************
  * LOCAL FUNCTIONS
  */
@@ -740,6 +746,9 @@ static void simpleTopology_init(void) {
 		GATTServApp_AddService(GATT_ALL_SERVICES);   // GATT attributes
 		//DevInfo_AddService();                        // Device Information Service
 		ClimbProfile_AddService(GATT_ALL_SERVICES); // Simple GATT Profile
+
+		// Add battery service.
+		Batt_AddService();
 
 		// Setup Profile Characteristic Values
 //    {
@@ -2974,14 +2983,22 @@ static void BLE_AdvertiseEventHandler(void) {
 		if (!connectionConfigured) {
 
 			CLIMB_FlashLed(Board_LED2);
-
+			lastBattMeas = 0;
 
 		} else {
 			PIN_setOutputValue(hGpioPin, Board_LED2, Board_LED_OFF);
+
+			uint32 ticksNow = Clock_getTicks();
+			if(ticksNow - lastBattMeas > MIN_BATT_MEAS_INTERVAL_TICKS){
+				Batt_MeasLevel();
+
+				lastBattMeas = ticksNow;
+			}
+
 		}
 
 		Util_startClock(&preAdvClock);
-	} else { //bad workaround
+	} else {
 		uint8 adv_active = 0;
 
 		uint8 status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);

@@ -252,6 +252,16 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>PROFILES/battservice.c</name>
+			<type>1</type>
+			<locationURI>GIT_PROJECT/Profiles/Batt/battservice.c</locationURI>
+		</link>
+		<link>
+			<name>PROFILES/battservice.h</name>
+			<type>1</type>
+			<locationURI>GIT_PROJECT/Profiles/Batt/battservice.h</locationURI>
+		</link>
+		<link>
 			<name>PROFILES/devinfoservice.c</name>
 			<type>1</type>
 			<locationURI>TI_SDK_BASE/Projects/ble/Profiles/DevInfo/CC26xx/devinfoservice.c</locationURI>
@@ -285,6 +295,11 @@
 			<name>PROFILES/gattservapp_util.c</name>
 			<type>1</type>
 			<locationURI>GIT_PROJECT/Profiles/gattservapp_util.c</locationURI>
+		</link>
+		<link>
+			<name>PROFILES/hiddev.c</name>
+			<type>1</type>
+			<locationURI>TI_SDK_BASE/Projects/ble/Profiles/HIDDev/CC26xx/hiddev.c</locationURI>
 		</link>
 		<link>
 			<name>PROFILES/oad.c</name>

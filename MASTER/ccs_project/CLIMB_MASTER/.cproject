@@ -211,12 +211,14 @@
 									<listOptionValue builtIn="false" value="&quot;${GIT_PROJECT}/libs/printf/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${GIT_PROJECT}/Application/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${GIT_PROJECT}/Profiles/Climb/&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${GIT_PROJECT}/Profiles/Batt&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${GIT_PROJECT}/Profiles/&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${CG_TOOL_ROOT}/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/ICall/Include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/Profiles/Roles&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/Profiles/DevInfo&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/Profiles/HIDDev/CC26xx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Projects/ble/common/cc26xx&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Components/applib/heap&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${TI_SDK_BASE}/Components/ble/hci&quot;"/>
@@ -330,7 +332,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="PROFILES/simplekeys.h|PROFILES/oad.c|TOOLS/cc26xx_ble_app_oad.cmd|Application/CLIMBPerOb_old.c|cc26x0f128.lds|cc26x0f128.cmd|PROFILES/Climb/peripheralObserver.c|Startup/ST|PROFILES/oad_target_externalFlash.c|PROFILES/simplekeys.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="PROFILES/hiddev.c|PROFILES/simplekeys.h|PROFILES/oad.c|TOOLS/cc26xx_ble_app_oad.cmd|Application/CLIMBPerOb_old.c|cc26x0f128.lds|cc26x0f128.cmd|PROFILES/Climb/peripheralObserver.c|Startup/ST|PROFILES/oad_target_externalFlash.c|PROFILES/simplekeys.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
