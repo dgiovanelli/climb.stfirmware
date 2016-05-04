@@ -2350,7 +2350,7 @@ static void Climb_preCEEvtHandler() {
  */
 static void Climb_goToSleepHandler() {
 
-	if (onBoardChildren == 0) {
+	if (onBoardChildren == 0 || !connectionConfigured) {
 		stopNode();
 	} else {
 		Util_restartClock(&goToSleepClock, GOTOSLEEP_POSTPONE_INTERVAL_SEC * 1000);
