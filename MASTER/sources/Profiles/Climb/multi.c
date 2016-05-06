@@ -1135,12 +1135,13 @@ static uint8_t gapRole_processGAPMsg(gapEventHdr_t *pMsg) {
 
 				// Check whether update parameter request is enabled
 				if (gapRole_ParamUpdateEnable == TRUE) {
-					// Get the minimum time upon connection establishment before the
-					// peripheral can start a connection update procedure.
-					uint16_t timeout = GAP_GetParamValue(
-					TGAP_CONN_PAUSE_PERIPHERAL);
+						// Get the minimum time upon connection establishment before the
+						// peripheral can start a connection update procedure.
+						uint16_t timeout = GAP_GetParamValue(
+						TGAP_CONN_PAUSE_PERIPHERAL);
 
-					Util_restartClock(&startUpdateClock, timeout * 1000);
+						Util_restartClock(&startUpdateClock, timeout * 1000);
+
 				}
 			}
 			// Notify the Bond Manager to the connection

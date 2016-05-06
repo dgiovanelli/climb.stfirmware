@@ -1111,7 +1111,9 @@ static uint8_t simpleTopology_processGATTMsg(gattMsgEvent_t *pMsg) {
  */
 static void BLE_ConnectionEventHandler_sendAttRsp(void) {
 
+
 	Util_startClock(&preCEClock);
+
 	// See if there's a pending ATT Response to be transmitted
 	if (pAttRsp != NULL) {
 		uint8_t status;
@@ -1408,18 +1410,21 @@ static void simpleTopology_processRoleEvent(gapMultiRoleEvent_t *pEvent) {
 
 	case GAP_LINK_PARAM_UPDATE_EVENT: {
 
-		if ((pEvent->linkUpdate.connInterval >= DEFAULT_DESIRED_MIN_CONN_INTERVAL && pEvent->linkUpdate.connInterval <= DEFAULT_DESIRED_MAX_CONN_INTERVAL)
-				&& pEvent->linkUpdate.connLatency == DEFAULT_DESIRED_SLAVE_LATENCY && pEvent->linkUpdate.connTimeout == DEFAULT_DESIRED_CONN_TIMEOUT) {
-			connectionConfigured = TRUE;
-			GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST); //trigger the first discovery, the subsequent will be triggered by GAP_DEVICE_DISCOVERY_EVENT
+		if(!connectionConfigured){
+//			if ((pEvent->linkUpdate.connInterval >= DEFAULT_DESIRED_MIN_CONN_INTERVAL && pEvent->linkUpdate.connInterval <= DEFAULT_DESIRED_MAX_CONN_INTERVAL)
+//					&& pEvent->linkUpdate.connLatency == DEFAULT_DESIRED_SLAVE_LATENCY && pEvent->linkUpdate.connTimeout == DEFAULT_DESIRED_CONN_TIMEOUT) {
+				connectionConfigured = TRUE;
+				GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST); //trigger the first discovery, the subsequent will be triggered by GAP_DEVICE_DISCOVERY_EVENT
+				Util_rescheduleClock(&preCEClock, (pEvent->linkUpdate.connInterval * 1250) / 1000 - 10);
+
+			//}
+		}else{
 			Util_rescheduleClock(&preCEClock, (pEvent->linkUpdate.connInterval * 1250) / 1000 - 10);
-
 		}
-
 		//moved outside the if for safety...
-		//connectionConfigured = TRUE;
-		//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,	DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST); //trigger the first discovery, the subsequent will be triggered by GAP_DEVICE_DISCOVERY_EVENT
-		//Util_rescheduleClock(&preCEClock,	(pEvent->linkUpdate.connInterval * 1250) / 1000 - 10);
+//		connectionConfigured = TRUE;
+//		GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,	DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST); //trigger the first discovery, the subsequent will be triggered by GAP_DEVICE_DISCOVERY_EVENT
+//		Util_rescheduleClock(&preCEClock,	(pEvent->linkUpdate.connInterval * 1250) / 1000 - 10);
 
 	}
 		break;
@@ -2609,12 +2614,12 @@ static void destroyChildNodeList() {
 				break;
 
 			case ON_BOARD:
+#warning maybe it is better to destroy the list regardless the state
 				//do nothing
 			case ALERT:
 				//do nothing
 				break;
 			case GOING_TO_SLEEP:
-				//do nothing
 				Climb_removeNode(i, CLIMB_CHILD_NODE); //rimuovi il nodo
 				break;
 
