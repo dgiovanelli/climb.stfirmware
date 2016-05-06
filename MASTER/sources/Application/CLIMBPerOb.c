@@ -2614,10 +2614,11 @@ static void destroyChildNodeList() {
 				break;
 
 			case ON_BOARD:
-#warning maybe it is better to destroy the list regardless the state
-				//do nothing
+#warning maybe it is better to destroy the list regardless of the stat
 			case ALERT:
-				//do nothing
+				if(!Util_isActive(&goToSleepClock)){ //remove the node only if it is an automatic switch off
+					Climb_removeNode(i, CLIMB_CHILD_NODE); //rimuovi il nodo
+				}
 				break;
 			case GOING_TO_SLEEP:
 				Climb_removeNode(i, CLIMB_CHILD_NODE); //rimuovi il nodo
