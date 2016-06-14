@@ -88,9 +88,13 @@
  * CONSTANTS
  */
 // Advertising interval when device is discoverable (units of 625us, 160=100ms)
+#ifdef HIGH_PERFORMANCE
+#define DEFAULT_CONNECTABLE_ADVERTISING_INTERVAL          240
+#define DEFAULT_NON_CONNECTABLE_ADVERTISING_INTERVAL          240
+#else
 #define DEFAULT_CONNECTABLE_ADVERTISING_INTERVAL          1600
-#define DEFAULT_NON_CONNECTABLE_ADVERTISING_INTERVAL          1000//1131//1592
-#define EPOCH_PERIOD										1000
+#define DEFAULT_NON_CONNECTABLE_ADVERTISING_INTERVAL          1000
+#endif
 
 // Limited discoverable mode advertises for 30.72s, and then stops
 // General discoverable mode advertises indefinitely
