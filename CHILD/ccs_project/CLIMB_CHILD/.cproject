@@ -241,6 +241,7 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.GCC.711851097" name="Enable support for GCC extensions (DEPRECATED) (--gcc)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.GCC" value="true" valueType="boolean"/>
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.DEFINE.1663313989" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_5.2.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="CLIMB_DEBUG"/>
+									<listOptionValue builtIn="false" value="HIGH_PERFORMANCE"/>
 									<listOptionValue builtIn="false" value="xPRINTF_ENABLED"/>
 									<listOptionValue builtIn="false" value="xHEAPMGR_METRICS"/>
 									<listOptionValue builtIn="false" value="USE_ICALL"/>

@@ -94,7 +94,11 @@
  * CONSTANTS
  */
 // Advertising interval when device is discoverable (units of 625us, 160=100ms)
+#ifdef HIGH_PERFORMANCE
+#define DEFAULT_ADVERTISING_INTERVAL          240
+#else
 #define DEFAULT_ADVERTISING_INTERVAL          1600
+#endif
 #define EPOCH_PERIOD						  1000
 
 // Limited discoverable mode advertises for 30.72s, and then stops
@@ -123,11 +127,17 @@
 // Connection Pause Peripheral time value (in seconds)
 #define DEFAULT_CONN_PAUSE_PERIPHERAL         10
 
+#ifdef HIGH_PERFORMANCE
+// Scan interval value in 0.625ms ticks
+#define SCAN_INTERVAL 						  80
+// scan window value in 0.625ms ticks
+#define SCAN_WINDOW							  80
+#else
 // Scan interval value in 0.625ms ticks
 #define SCAN_INTERVAL 						  320
-
 // scan window value in 0.625ms ticks
 #define SCAN_WINDOW							  320
+#endif
 
 // Scan duration in ms
 #define DEFAULT_SCAN_DURATION                 1250//10000 //Tempo di durata di una scansione,
@@ -2218,7 +2228,9 @@ static void Climb_periodicTask(){
 }
 
 static void Climb_preAdvEvtHandler(){
-
+#ifdef HIGH_PERFORMANCE
+	GAPObserverRole_CancelDiscovery();
+#endif
 #ifdef CLIMB_DEBUG
 	adv_counter++;
 
