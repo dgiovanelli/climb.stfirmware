@@ -94,11 +94,7 @@
  * CONSTANTS
  */
 // Advertising interval when device is discoverable (units of 625us, 160=100ms)
-#ifdef WORKAROUND
-#define DEFAULT_ADVERTISING_INTERVAL          3200
-#else
 #define DEFAULT_ADVERTISING_INTERVAL          1600
-#endif
 #define EPOCH_PERIOD						  1000
 
 // Limited discoverable mode advertises for 30.72s, and then stops
@@ -304,9 +300,6 @@ static Clock_Struct wakeUpClock;
 static Clock_Struct goToSleepClock;
 
 static Clock_Struct preAdvClock;
-#ifdef WORKAROUND
-static Clock_Struct epochClock;
-#endif
 // Queue object used for app messages
 static Queue_Struct appMsg;
 static Queue_Handle appMsgQueue;
@@ -462,9 +455,6 @@ static void Climb_updateMyBroadcastedState(ChildClimbNodeStateType_t newState);
 static void Climb_nodeTimeoutCheck();
 static void Climb_removeNode(uint8 indexToRemove, ClimbNodeType_t nodeType) ;
 static void Climb_periodicTask();
-#ifdef WORKAROUND
-static void Climb_epochStartHandler();
-#endif
 static void Climb_preAdvEvtHandler();
 static void Climb_goToSleepHandler();
 static void Climb_wakeUpHandler();
@@ -607,10 +597,6 @@ static void SimpleBLEPeripheral_init(void) {
 	Util_constructClock(&preAdvClock, Climb_clockHandler,
 	PRE_ADV_TIMEOUT, 0, false, PRE_ADV_EVT);
 
-#ifdef WORKAROUND
-	Util_constructClock(&epochClock, Climb_clockHandler,
-			EPOCH_PERIOD, 0, false, EPOCH_EVT);
-#endif
 #ifndef SENSORTAG_HW
 	Board_openLCD();
 #endif //SENSORTAG_HW
@@ -906,22 +892,6 @@ void CLIMB_taskFxn(uint32* a0, uint32* a1)
 
 
 	}
-
-#ifdef WORKAROUND
-	if (events & EPOCH_EVT) {
-		events &= ~EPOCH_EVT;
-
-		if (beaconActive == 1) {
-
-			Climb_epochStartHandler();
-
-			float randDelay = 10 * ((float) Util_GetTRNG()) / 4294967296;
-			Util_restartClock(&epochClock, EPOCH_PERIOD + randDelay);
-
-		}
-
-	}
-#endif
   }
 }
 
@@ -1314,11 +1284,6 @@ static void BLE_AdvertiseEventHandler(void) {
 	//temp_tick_3 = Clock_getTicks();
 	Util_startClock(&preAdvClock);
 
-#ifdef WORKAROUND
-	uint8 adv_active = 0;
-	uint8 status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t),&adv_active);
-	status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t),&adv_active);
-#endif
 #ifdef PRINTF_ENABLED
 		System_printf("\nAdvertise event\n");
 #endif
@@ -1476,17 +1441,12 @@ static void SimpleBLEObserver_processRoleEvent(gapObserverRoleEvent_t *pEvent) {
 	case GAP_DEVICE_DISCOVERY_EVENT:
 
 		devicesHeardDuringLastScan = 0;
-#ifndef WORKAROUND
 
 		scanning = FALSE;
 
+		//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
 
-
-			//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
-			//Util_startClock(&preAdvClock);
 			//CLIMB_FlashLed(Board_LED2);
-
-#endif
 		break;
 	case GAP_ADV_DATA_UPDATE_DONE_EVENT:
 		//temp_tick_2 = Clock_getTicks();
@@ -2256,23 +2216,6 @@ static void Climb_periodicTask(){
 #endif
 #endif
 }
-#ifdef WORKAROUND
-/*********************************************************************
- * @fn      Climb_epochStartHandler
- *
- * @brief	Handler associated with epoch clock instance.
- *
- * @return  none
- */
-static void Climb_epochStartHandler(){
-	GAPObserverRole_CancelDiscovery();
-	if(beaconActive){
-		uint8 adv_active = 1;
-		uint8 status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t),&adv_active);
-		GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
-	}
-}
-#endif
 
 static void Climb_preAdvEvtHandler(){
 
@@ -2469,11 +2412,7 @@ static void startNode() {
 		GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
 
 		beaconActive = 1;
-#ifdef WORKAROUND
-		Util_startClock(&epochClock);
-#endif
 	}
-
 }
 
 /*********************************************************************
@@ -2496,9 +2435,6 @@ static void stopNode() {
 
 	CLIMB_FlashLed(Board_LED1);
 
-#ifdef WORKAROUND
-	Util_stopClock(&epochClock);
-#endif
 }
 /*********************************************************************
  * @fn      destroyChildNodeList
