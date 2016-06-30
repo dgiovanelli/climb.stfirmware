@@ -166,7 +166,7 @@
 #warning CHECK TIMEOUTS!!!
 #define CONNECTABLE_TIMEOUT_MSEC					1000*60
 #define WAKEUP_DEFAULT_TIMEOUT_SEC				60*60*24
-#define GOTOSLEEP_DEFAULT_TIMEOUT_SEC			1*60*60
+#define GOTOSLEEP_DEFAULT_TIMEOUT_SEC			2*60*60
 #define GOING_TO_SLEEP_DELAY_AFTER_REQUEST_MSEC 1000*60
 
 #define NODE_ID								  { 0x02  }
@@ -321,7 +321,7 @@ static uint16_t events;
 //Task_Struct sbpTask;
 //Char sbpTaskStack[SBP_TASK_STACK_SIZE];
 
-static ChildClimbNodeStateType_t nodeState = BY_MYSELF;
+static ChildClimbNodeStateType_t nodeState = ON_BOARD;
 
 static uint8 Climb_masterNodeName[] = {'C','L','I','M','B','M'};
 
@@ -345,7 +345,7 @@ static uint8 advertData[31] = {
 		0x0D,
 		0x00,
 		0, //ID
-		(uint8)BY_MYSELF,
+		(uint8)ON_BOARD,
 		0,
 		0,
 		0,
@@ -1436,11 +1436,11 @@ static void SimpleBLEObserver_processRoleEvent(gapObserverRoleEvent_t *pEvent) {
 
 		if (devicesHeardDuringLastScan >= DEFAULT_MAX_SCAN_RES) {
 			if (beaconActive) {
-				GAPObserverRole_CancelDiscovery();
+				//GAPObserverRole_CancelDiscovery();
 				scanning = FALSE;
 				if (!scanning) {
-					uint8 status = GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
-					scanning = TRUE;
+					//uint8 status = GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
+					//scanning = TRUE;
 				}
 			}
 		}
@@ -1455,8 +1455,8 @@ static void SimpleBLEObserver_processRoleEvent(gapObserverRoleEvent_t *pEvent) {
 		scanning = FALSE;
 
 		//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE,DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
+		CLIMB_FlashLed(Board_LED2);
 
-			//CLIMB_FlashLed(Board_LED2);
 		break;
 	case GAP_ADV_DATA_UPDATE_DONE_EVENT:
 		//temp_tick_2 = Clock_getTicks();
@@ -2229,7 +2229,7 @@ static void Climb_periodicTask(){
 
 static void Climb_preAdvEvtHandler(){
 #ifdef HIGH_PERFORMANCE
-	GAPObserverRole_CancelDiscovery();
+	//GAPObserverRole_CancelDiscovery();
 #endif
 #ifdef CLIMB_DEBUG
 	adv_counter++;
@@ -2244,8 +2244,8 @@ static void Climb_preAdvEvtHandler(){
 
 	if(!scanning){
 		if(beaconActive){
-			GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
-			scanning = TRUE;
+			//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
+			//scanning = TRUE;
 		}
 	}
 }
@@ -2421,7 +2421,7 @@ static void startNode() {
 		HCI_EXT_AdvEventNoticeCmd(selfEntity, ADVERTISE_EVT);
 		Util_startClock(&periodicClock);
 		CLIMB_FlashLed(Board_LED2);
-		GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
+		//GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
 
 		beaconActive = 1;
 	}
@@ -2437,7 +2437,7 @@ static void startNode() {
  */
 static void stopNode() {
 	beaconActive = 0;
-	GAPObserverRole_CancelDiscovery();
+	//GAPObserverRole_CancelDiscovery();
 	scanning = FALSE;
 	uint8 adv_active = 0;
 	uint8 status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active);
