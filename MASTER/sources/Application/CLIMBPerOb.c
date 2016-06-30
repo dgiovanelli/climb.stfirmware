@@ -374,7 +374,7 @@ Board_SRDY | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, 
 
 		PIN_TERMINATE };
 
-static uint8 Climb_childNodeName[] = { 'C', 'L', 'I', 'M', 'B', 'C' };
+static uint8 Climb_childNodeName[] = { 'C', 'L', 'I', 'M', 'B', 'B' };
 
 static uint8 advUpdateReq = FALSE;
 

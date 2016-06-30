@@ -339,7 +339,7 @@ static uint8 advertData[31] = {
 		'I',
 		'M',
 		'B',
-		'C',
+		'B',
 		0x05,// length of this data
 		GAP_ADTYPE_MANUFACTURER_SPECIFIC,
 		0x0D,
