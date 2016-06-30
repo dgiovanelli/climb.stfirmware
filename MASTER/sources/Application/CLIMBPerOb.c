@@ -2398,8 +2398,8 @@ static void Climb_wakeUpHandler() {
 
 	if (wakeUpTimeout_sec_global == 0) {
 		startNode();
-		Util_restartClock(&goToSleepClock, GOTOSLEEP_DEFAULT_TIMEOUT_SEC * 1000);
-		Climb_setWakeUpClock(WAKEUP_DEFAULT_TIMEOUT_SEC);
+		//Util_restartClock(&goToSleepClock, GOTOSLEEP_DEFAULT_TIMEOUT_SEC * 1000);
+		//Climb_setWakeUpClock(WAKEUP_DEFAULT_TIMEOUT_SEC);
 
 		return;
 	}
