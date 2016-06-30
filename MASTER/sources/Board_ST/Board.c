@@ -33,9 +33,7 @@
 /*
  *  ====================== Board.c =============================================
  *  This file is responsible for setting up the board specific items for the
- *  CC2650 SensorTag. 
- *
- *  NB! This board file is for PCB version 1.2 and 1.3
+ *  SRF06EB with the CC2650EM_7ID board.
  */
 
 
@@ -54,20 +52,6 @@
 #include <ti/drivers/PIN.h>
 #include "Board.h"
 
-/* Include drivers */
-#include <ti/drivers/UART.h>
-#include <ti/drivers/uart/UARTCC26XX.h>
-
-/* timer drivers */
-#include <ti/drivers/PWM2.h>
-#include <ti/drivers/pwm/PWMCC26XX.h>
-#include <ti/drivers/timer/GPTimerCC26XX.h>
-
-#include <ti/sysbios/family/arm/cc26xx/PowerCC2650.h>
-#include <inc/hw_ints.h>
-
-
-
 /*
  *  ========================= IO driver initialization =========================
  *  From main, PIN_init(BoardGpioInitTable) should be called to setup safe
@@ -75,32 +59,23 @@
  *  When a pin is allocated and then de-allocated, it will revert to the state
  *  configured in this table.
 */
-
 PIN_Config BoardGpioInitTable[] = {
-    Board_LED1       | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,     /* LED initially off             */
-    Board_LED2       | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,     /* LED initially off             */
-    Board_KEY_LEFT   | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
-    Board_KEY_RIGHT  | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
-    Board_RELAY      | PIN_INPUT_EN | PIN_PULLDOWN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,      /* Relay is active high          */
-    Board_MPU_INT    | PIN_INPUT_EN | PIN_PULLDOWN | PIN_IRQ_NEGEDGE | PIN_HYSTERESIS,        /* MPU_INT is active low         */
-    Board_TMP_RDY    | PIN_INPUT_EN | PIN_PULLUP | PIN_HYSTERESIS,                            /* TMP_RDY is active high        */
-    Board_BUZZER     | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,     /* Buzzer initially off          */
-    Board_MPU_POWER  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,    /* MPU initially on              */
-    Board_MIC_POWER  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MIN,     /* MIC initially off             */
-    Board_SPI_FLASH_CS | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL | PIN_DRVSTR_MIN,  /* External flash chip select    */
-    Board_SPI_DEVPK_CS | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MIN,   /* DevPack chip select           */
-    Board_AUDIO_DI | PIN_INPUT_EN | PIN_PULLDOWN,                                             /* Audio DI                      */
-    Board_AUDIODO | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL | PIN_DRVSTR_MIN,       /* Audio data out                */
-    Board_AUDIO_CLK | PIN_INPUT_EN | PIN_PULLDOWN,                                            /* DevPack */
-    Board_DP2 | PIN_INPUT_EN | PIN_PULLDOWN,                                                  /* DevPack */
-    Board_DP1 | PIN_INPUT_EN | PIN_PULLDOWN,                                                  /* DevPack */
-    Board_DP0 | PIN_INPUT_EN | PIN_PULLDOWN,                                                  /* DevPack */
-    Board_DP3 | PIN_INPUT_EN | PIN_PULLDOWN,                                                  /* DevPack */
-    Board_DP4_UARTRX | PIN_INPUT_EN | PIN_PULLDOWN,                                           /* DevPack */
-    Board_DP5_UARTTX | PIN_INPUT_EN | PIN_PULLDOWN,                                           /* Devpack */
-    Board_DEVPK_ID | PIN_INPUT_EN | PIN_NOPULL,                                               /* Device pack ID - external PU  */
 
-	PIN_TERMINATE
+    Board_LED1       | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW   | PIN_PUSHPULL | PIN_DRVSTR_MAX,     /* LED initially off             */
+    Board_LED2       | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW   | PIN_PUSHPULL | PIN_DRVSTR_MAX,     /* LED initially off             */
+    Board_MRDY       | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH   | PIN_PUSHPULL | PIN_DRVSTR_MAX,    /* MRDY Initially high           */
+    Board_SRDY       | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* SRDY is active low            */
+    Board_KEY_SELECT | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* Button is active low          */
+    Board_KEY_UP     | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* Button is active low          */
+    Board_KEY_DOWN   | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* Button is active low          */
+    Board_KEY_LEFT   | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* Button is active low          */
+    Board_KEY_RIGHT  | PIN_INPUT_EN  | PIN_PULLUP | PIN_HYSTERESIS,                             /* Button is active low          */
+    Board_3V3_EN     | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW    | PIN_PUSHPULL,                     /* 3V3 domain off initially      */
+    Board_LCD_MODE   | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH   | PIN_PUSHPULL,                     /* LCD pin high initially        */
+    Board_LCD_RST    | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH   | PIN_PUSHPULL,                     /* LCD pin high initially        */
+    Board_LCD_CSN    | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH   | PIN_PUSHPULL,                     /* LCD pin high initially        */
+    Board_UART_TX    | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH   | PIN_PUSHPULL,                     /* UART TX pin at inactive level */
+    PIN_TERMINATE                                                                               /* Terminate list                */
 };
 /*============================================================================*/
 
@@ -112,6 +87,9 @@ PIN_Config BoardGpioInitTable[] = {
 #pragma DATA_SECTION(uartCC26XXHWAttrs, ".const:uartCC26XXHWAttrs")
 #endif
 
+/* Include drivers */
+#include <ti/drivers/UART.h>
+#include <ti/drivers/uart/UARTCC26XX.h>
 
 /* UART objects */
 UARTCC26XX_Object uartCC26XXObjects[CC2650_UARTCOUNT];
@@ -120,13 +98,13 @@ UARTCC26XX_Object uartCC26XXObjects[CC2650_UARTCOUNT];
 const UARTCC26XX_HWAttrs uartCC26XXHWAttrs[CC2650_UARTCOUNT] = {
     {    /* CC2650_UART0 */
         .baseAddr = UART0_BASE,
-        .powerMngrId = PERIPH_UART0,
         .intNum = INT_UART0,
+        .powerMngrId = PERIPH_UART0,
         .txPin = Board_UART_TX,
         .rxPin = Board_UART_RX,
         .ctsPin = PIN_UNASSIGNED,
         .rtsPin = PIN_UNASSIGNED
-    }
+    },
 };
 
 /* UART configuration structure */
@@ -155,11 +133,7 @@ UDMACC26XX_Object UdmaObjects[CC2650_UDMACOUNT];
 
 /* UDMA configuration structure */
 const UDMACC26XX_HWAttrs udmaHWAttrs[CC2650_UDMACOUNT] = {
-    {
-      .baseAddr = UDMA0_BASE,
-      .powerMngrId = PERIPH_UDMA,
-      .intNum = INT_UDMAERR,
-    }
+    { UDMA0_BASE, INT_UDMAERR, PERIPH_UDMA },
 };
 
 /* UDMA configuration structure */
@@ -226,38 +200,35 @@ const SPI_Config SPI_config[] = {
  *  ========================== SPI DMA end =====================================
 */
 
+
 /*
- *  ============================= I2C Begin=====================================
+ *  ========================== LCD begin =======================================
 */
 /* Place into subsections to allow the TI linker to remove items properly */
 #if defined(__TI_COMPILER_VERSION__)
-#pragma DATA_SECTION(I2C_config, ".const:I2C_config")
-#pragma DATA_SECTION(i2cCC26xxHWAttrs, ".const:i2cCC26xxHWAttrs")
+#pragma DATA_SECTION(LCD_config, ".const:LCD_config")
+#pragma DATA_SECTION(lcdHWAttrs, ".const:lcdHWAttrs")
 #endif
 
 /* Include drivers */
-#include <ti/drivers/i2c/I2CCC26XX.h>
+#include <ti/drivers/lcd/LCDDogm1286.h>
 
-/* I2C objects */
-I2CCC26XX_Object i2cCC26xxObjects[CC2650_I2CCOUNT];
+/* LCD object */
+LCD_Object lcdObject;
 
-/* I2C configuration structure, describing which pins are to be used */
-const I2CCC26XX_HWAttrs i2cCC26xxHWAttrs[CC2650_I2CCOUNT] = {
-    {
-        .baseAddr = I2C0_BASE,
-        .powerMngrId = PERIPH_I2C0,
-        .intNum = INT_I2C,
-        .sdaPin = Board_I2C0_SDA0,
-        .sclPin = Board_I2C0_SCL0,
-    }
+/* LCD hardware attribute structure */
+const LCD_HWAttrs lcdHWAttrs = {
+    .LCD_initCmd = &LCD_initCmd,
+    .lcdResetPin = Board_LCD_RST,       /* LCD reset pin */
+    .lcdModePin = Board_LCD_MODE,       /* LCD mode pin */
+    .lcdCsnPin = Board_LCD_CSN,         /* LCD CSn pin */
+    .spiIndex = Board_SPI0
 };
 
-const I2C_Config I2C_config[] = {
-    {&I2CCC26XX_fxnTable, &i2cCC26xxObjects[0], &i2cCC26xxHWAttrs[0]},
-    {NULL, NULL, NULL}
-};
+/* LCD configuration structure */
+const LCD_Config LCD_config = {&lcdObject, &lcdHWAttrs};
 /*
- *  ========================== I2C end =========================================
+ *  ========================== LCD end =========================================
 */
 
 /*
@@ -278,11 +249,7 @@ CryptoCC26XX_Object cryptoCC26XXObjects[CC2650_CRYPTOCOUNT];
 
 /* Crypto configuration structure, describing which pins are to be used */
 const CryptoCC26XX_HWAttrs cryptoCC26XXHWAttrs[CC2650_CRYPTOCOUNT] = {
-    {
-      .baseAddr = CRYPTO_BASE,
-      .powerMngrId = PERIPH_CRYPTO,
-      .intNum = INT_CRYPTO,
-    }
+    {CRYPTO_BASE, INT_CRYPTO, PERIPH_CRYPTO}
 };
 
 /* Crypto configuration structure */
@@ -291,70 +258,6 @@ const CryptoCC26XX_Config CryptoCC26XX_config[] = {
     {NULL, NULL}
 };
 
-
-
 /*
- *  ========================== Timer begin =======================================
-*/
-
-
-// GPTimer hardware attributes, one per timer unit (Timer 0A, 0B, 1A, 1B..)
-const GPTimerCC26XX_HWAttrs gptimerCC26xxHWAttrs[CC2650_GPTIMERUNITSCOUNT] = {
-    {.baseAddr = GPT0_BASE, .intNum = INT_TIMER0A, .intPriority = (~0), .powerMngrId = PERIPH_GPT0, .pinMux = GPT_PIN_0A, },
-    {.baseAddr = GPT0_BASE, .intNum = INT_TIMER0B, .intPriority = (~0), .powerMngrId = PERIPH_GPT0, .pinMux = GPT_PIN_0B, },
-//  {.baseAddr = GPT1_BASE, .intNum = INT_TIMER1A, .intPriority = (~0), .powerMngrId = PERIPH_GPT1, .pinMux = GPT_PIN_1A, },
-//  {.baseAddr = GPT1_BASE, .intNum = INT_TIMER1B, .intPriority = (~0), .powerMngrId = PERIPH_GPT1, .pinMux = GPT_PIN_1B, },
-//  {.baseAddr = GPT2_BASE, .intNum = INT_TIMER2A, .intPriority = (~0), .powerMngrId = PERIPH_GPT2, .pinMux = GPT_PIN_2A, },
-//  {.baseAddr = GPT2_BASE, .intNum = INT_TIMER2B, .intPriority = (~0), .powerMngrId = PERIPH_GPT2, .pinMux = GPT_PIN_2B, },
-//  {.baseAddr = GPT3_BASE, .intNum = INT_TIMER3A, .intPriority = (~0), .powerMngrId = PERIPH_GPT3, .pinMux = GPT_PIN_3A, },
-//  {.baseAddr = GPT3_BASE, .intNum = INT_TIMER3B, .intPriority = (~0), .powerMngrId = PERIPH_GPT3, .pinMux = GPT_PIN_3B, },
-};
-
-// GPTimer objects, one per full-width timer (A+B) (Timer 0, Timer 1..)
-GPTimerCC26XX_Object gptimerCC26XXObjects[CC2650_GPTIMERCOUNT];
-
-// GPTimer configuration (used as GPTimer_Handle by driver and application)
-const GPTimerCC26XX_Config GPTimerCC26XX_config[CC2650_GPTIMERUNITSCOUNT] = {
-    { &gptimerCC26XXObjects[0], &gptimerCC26xxHWAttrs[0], GPT_A},
-    { &gptimerCC26XXObjects[0], &gptimerCC26xxHWAttrs[1], GPT_B},
-//  { &gptimerCC26XXObjects[1], &gptimerCC26xxHWAttrs[2], GPT_A},
-//  { &gptimerCC26XXObjects[1], &gptimerCC26xxHWAttrs[3], GPT_B},
-//  { &gptimerCC26XXObjects[2], &gptimerCC26xxHWAttrs[4], GPT_A},
-//  { &gptimerCC26XXObjects[2], &gptimerCC26xxHWAttrs[5], GPT_B},
-//  { &gptimerCC26XXObjects[3], &gptimerCC26xxHWAttrs[6], GPT_A},
-//  { &gptimerCC26XXObjects[3], &gptimerCC26xxHWAttrs[7], GPT_B},
-};
-
-// PWM configuration, one per PWM output
-PWMCC26XX_HwAttrs pwmCC26xxHWAttrs[CC2650_PWMCOUNT] = {
-    { .pwmPin = Board_PWMPIN0, .gpTimerUnit = CC2650_GPTIMER0A } ,
-    { .pwmPin = Board_PWMPIN1, .gpTimerUnit = CC2650_GPTIMER0B } ,
-//  { .pwmPin = Board_PWMPIN2, .gpTimerUnit = CC2650_GPTIMER1A } ,
-//  { .pwmPin = Board_PWMPIN3, .gpTimerUnit = CC2650_GPTIMER1B } ,
-//  { .pwmPin = Board_PWMPIN4, .gpTimerUnit = CC2650_GPTIMER2A } ,
-//  { .pwmPin = Board_PWMPIN5, .gpTimerUnit = CC2650_GPTIMER2B } ,
-//  { .pwmPin = Board_PWMPIN6, .gpTimerUnit = CC2650_GPTIMER3A } ,
-//  { .pwmPin = Board_PWMPIN7, .gpTimerUnit = CC2650_GPTIMER3B } ,
-};
-
-// PWM object, one per PWM output
-PWMCC26XX_Object pwmCC26xxObjects[CC2650_PWMCOUNT];
-
-
-extern const PWM_FxnTable PWMCC26XX_fxnTable;
-//PWM configuration (used as PWM_Handle by driver and application)
-const PWM_Config PWM_config[CC2650_PWMCOUNT+1] = {
-  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[0], &pwmCC26xxHWAttrs[0] },
-  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[1], &pwmCC26xxHWAttrs[1] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[2], &pwmCC26xxHWAttrs[2] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[3], &pwmCC26xxHWAttrs[3] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[4], &pwmCC26xxHWAttrs[4] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[5], &pwmCC26xxHWAttrs[5] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[6], &pwmCC26xxHWAttrs[6] },
-//  { &PWMCC26XX_fxnTable, &pwmCC26xxObjects[7], &pwmCC26xxHWAttrs[7] },
-  { NULL,               NULL,                 NULL                 }
-};
-
-/*
- *  ========================== Timer end =========================================
+ *  ========================== Crypto end =========================================
 */

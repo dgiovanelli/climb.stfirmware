@@ -61,8 +61,6 @@
 #include "ICallBleAPIMSG.h"
 
 #include "util.h"
-#include "board_lcd.h"
-#include "board_key.h"
 #include "Board.h"
 
 #include "linkdb.h"
@@ -71,15 +69,19 @@
 
 #include "battservice.h"
 
-#include "bsp_I2c.h"
-#include "bsp_spi.h"
 #include <ti/drivers/timer/GPTimerCC26XX.h>
 
+#if ST_HARDWARE
 #include "sensor_bmp280.h"
 #include "sensor_hdc1000.h"
 #include "sensor_mpu9250.h"
 #include "sensor_opt3001.h"
 #include "sensor_tmp007.h"
+#include "board_lcd.h"
+#include "board_key.h"
+#include "bsp_I2c.h"
+#include "bsp_spi.h"
+#endif
 
 #include <xdc/runtime/Types.h>
 #include <ti/sysbios/BIOS.h>
@@ -147,7 +149,7 @@
 #define DEFAULT_DISCOVERY_WHITE_LIST          FALSE
 
 // How often to perform periodic event (in msec)
-#define PERIODIC_EVT_PERIOD              	  2000
+#define PERIODIC_EVT_PERIOD              	  500
 
 #define NODE_TIMEOUT_OS_TICKS				  500000
 
@@ -156,7 +158,7 @@
 
 #warning CHECK TIMEOUTS
 #define WAKEUP_DEFAULT_TIMEOUT_SEC				60*60*24
-#define GOTOSLEEP_DEFAULT_TIMEOUT_SEC			1*60*60
+#define GOTOSLEEP_DEFAULT_TIMEOUT_SEC			2*60*60
 #define GOTOSLEEP_POSTPONE_INTERVAL_SEC			5*60
 
 #define MAX_ALLOWED_TIMER_DURATION_SEC	      42000 //actual max timer duration 42949.67sec
@@ -165,8 +167,8 @@
 #define CHILD_NODE_ID_LENGTH				  1
 #define MASTER_NODE_ID_LENGTH				  6
 
-#define MAX_SUPPORTED_CHILD_NODES			  60
-#define MAX_SUPPORTED_MASTER_NODES			  30
+#define MAX_SUPPORTED_CHILD_NODES			  10
+#define MAX_SUPPORTED_MASTER_NODES			  10
 #if MAX_SUPPORTED_CHILD_NODES < 90
 #warning MAX_SUPPORTED_CHILD_NODES is low because of debugging pourposes, it can be set to 90
 #endif
@@ -362,10 +364,12 @@ static PIN_State pinGpioState;
 static PIN_Config SensortagAppPinTable[] = {
 Board_LED1 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* LED initially off             */
 Board_LED2 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* LED initially off             */
+Board_MRDY | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* LED initially off             */
+Board_SRDY | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* LED initially off             */
 //Board_KEY_LEFT   | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
 //Board_KEY_RIGHT  | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
 //Board_RELAY      | PIN_INPUT_EN | PIN_PULLDOWN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,      /* Relay is active high          */
-		Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* Buzzer initially off          */
+//		Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX, /* Buzzer initially off          */
 		//Board_MPU_POWER  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
 
 		PIN_TERMINATE };
@@ -396,6 +400,7 @@ static uint8 gatt_startNodeIndex = 0;
 static myGapDevRec_t* childListArray = NULL;
 static myGapDevRec_t* masterListArray = NULL;
 
+static uint8_t atLeastOneAlert = 0;
 #ifdef WATCHDOGTIMER_EN
 GPTimerCC26XX_Handle hTimer;
 static uint8 unclearedWatchdogEvents = 0;
@@ -551,8 +556,9 @@ NULL, // Passcode callback (not used by application)
  */
 static void simpleTopology_init(void) {
 	// Setup I2C for sensors
+#if SENSORTAG_HW
 	bspI2cInit();
-
+#endif
 	// Handling of buttons, LED, relay
 	hGpioPin = PIN_open(&pinGpioState, SensortagAppPinTable);
 	//PIN_registerIntCb(hGpioPin, Key_callback);
@@ -806,7 +812,7 @@ static void simpleTopology_init(void) {
 	}
 
 	//sensorTestExecute(ST_TEST_MAP);
-
+#if ST_HARDWARE
 	sensorBmp280Init();
 	sensorBmp280Enable(FALSE);
 	sensorHdc1000Init();
@@ -815,7 +821,7 @@ static void simpleTopology_init(void) {
 	//sensorMpu9250Reset();
 	sensorOpt3001Init();
 	sensorTmp007Init();
-
+#endif
 	// Start Bond Manager
 	VOID GAPBondMgr_Register(&simpleBLEPeripheral_BondMgrCBs);
 
@@ -940,9 +946,9 @@ void simpleTopology_taskFxn(uint32* a0, uint32* a1) {
 				Util_startClock(&periodicClock);
 			}
 			// Perform periodic application task
-			if (connectionConfigured == TRUE) {
+			//if (connectionConfigured == TRUE) {
 				Climb_periodicTask();
-			}
+			//}
 		}
 
 		if (events & LED_TIMEOUT_EVT) {
@@ -1319,11 +1325,11 @@ static void simpleTopology_processRoleEvent(gapMultiRoleEvent_t *pEvent) {
 	case GAP_DEVICE_DISCOVERY_EVENT: {
 		devicesHeardDuringLastScan = 0;
 
-		if (connectionConfigured) {
+		//if (connectionConfigured) {
 			uint8 status = GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST);
 			//CLIMB_FlashLed(Board_LED2);
 			PIN_setOutputValue(hGpioPin, Board_LED2, Board_LED_ON);
-		}
+		//}
 
 		// discovery complete
 //        scanningStarted = FALSE;
@@ -1369,10 +1375,10 @@ static void simpleTopology_processRoleEvent(gapMultiRoleEvent_t *pEvent) {
 
 
 			if(nodeTurnedOn){
-				uint8 adv_active = FALSE;
-				GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
-				adv_active = TRUE;
-				GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//				uint8 adv_active = FALSE;
+//				GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//				adv_active = TRUE;
+//				GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 			}
 
 		} else {
@@ -1392,14 +1398,14 @@ static void simpleTopology_processRoleEvent(gapMultiRoleEvent_t *pEvent) {
 		GAPRole_SetParameter(GAPROLE_ADVERT_DATA, sizeof(defAdvertData), defAdvertData, NULL);
 
 		if(nodeTurnedOn){
-			uint8 adv_active = FALSE;
-			GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
-			adv_active = TRUE;
-			GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//			uint8 adv_active = FALSE;
+//			GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//			adv_active = TRUE;
+//			GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 		}else{
-			uint8 adv_active = FALSE;
-			GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
-			GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//			uint8 adv_active = FALSE;
+//			GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//			GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 		}
 		// Disable connection event end notice
 		HCI_EXT_ConnEventNoticeCmd(pEvent->linkTerminate.connectionHandle, selfEntity, 0);
@@ -2214,6 +2220,8 @@ static void Climb_nodeTimeoutCheck() {
 					break;
 
 				case ON_BOARD:
+					childListArray[i].state = ALERT;
+					atLeastOneAlert = TRUE;
 					//do nothing, app will trigger the alert!!
 				case ALERT:
 					//do nothing
@@ -2293,7 +2301,19 @@ static void Climb_removeNode(uint8 indexToRemove, ClimbNodeType_t nodeType) {
  */
 static void Climb_periodicTask() {
 	Climb_nodeTimeoutCheck();
-
+	static uint8_t odd = 0;
+	if(atLeastOneAlert == TRUE){
+		PIN_setOutputValue(hGpioPin, Board_LED1, odd%2);
+		PIN_setOutputValue(hGpioPin, Board_LED2, odd%2);
+		PIN_setOutputValue(hGpioPin, Board_MRDY, odd%2);
+		PIN_setOutputValue(hGpioPin, Board_SRDY, odd%2);
+	}else{
+		PIN_setOutputValue(hGpioPin, Board_LED1, 0);
+		PIN_setOutputValue(hGpioPin, Board_LED2, 0);
+		PIN_setOutputValue(hGpioPin, Board_MRDY, odd%2);
+		PIN_setOutputValue(hGpioPin, Board_SRDY, 0);
+	}
+	odd++;
 #ifdef  HEAPMGR_METRICS
 	plotHeapMetrics();
 #endif
@@ -2542,12 +2562,15 @@ static void startNode() {
 
 	uint8 adv_active = 1;
 
-	uint8 status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+	//uint8 status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 
 	Util_startClock(&periodicClock);
 
 	CLIMB_FlashLed(Board_LED2);
 	nodeTurnedOn = TRUE;
+
+	GAPRole_StartDiscovery(DEFAULT_DISCOVERY_MODE, DEFAULT_DISCOVERY_ACTIVE_SCAN, DEFAULT_DISCOVERY_WHITE_LIST); //trigger the first discovery, the subsequent will be triggered by GAP_DEVICE_DISCOVERY_EVENT
+	Util_rescheduleClock(&preCEClock, (162 * 1250) / 1000 - 10);
 
 }
 
@@ -2580,8 +2603,8 @@ static void stopNode() {
 	}
 
 	uint8 adv_active = 0;
-	status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
-	status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//	status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//	status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 
 	if(connHandle != GAP_CONNHANDLE_INIT){
 		GAPRole_TerminateConnection(connHandle);
@@ -3009,10 +3032,10 @@ static void BLE_AdvertiseEventHandler(void) {
 
 		Util_startClock(&preAdvClock);
 	} else {
-		uint8 adv_active = 0;
-
-		uint8 status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
-		status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//		uint8 adv_active = 0;
+//
+//		uint8 status = GAPRole_SetParameter(GAPROLE_ADVERT_ENABLED, sizeof(uint8_t), &adv_active, NULL);
+//		status = GAPRole_SetParameter(GAPROLE_ADV_NONCONN_ENABLED, sizeof(uint8_t), &adv_active, NULL);
 	}
 }
 

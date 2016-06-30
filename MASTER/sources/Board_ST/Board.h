@@ -32,9 +32,9 @@
 /** ============================================================================
  *  @file       Board.h
  *
- *  @brief      CC2650SENSORTAG Board Specific header file.
- *
- *  NB! This is the board file for PCB versions 1.2 and 1.3
+ *  @brief      CC2650EM_7ID Board Specific header file.
+ *              The project options should point to this file if this is the
+ *              CC2650EM you are developing code for.
  *
  *  The CC2650 header file should be included in an application as follows:
  *  @code
@@ -43,12 +43,18 @@
  *
  *  ============================================================================
  */
-#ifndef __BOARD_H__
-#define __BOARD_H__
+#ifndef __CC2650EM_7ID_H__
+#define __CC2650EM_7ID_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** ============================================================================
+ *  Symbol by generic Board.c to include the correct kit specific Board.c
+ *  ==========================================================================*/
+#define CC2650EM_7ID
+
 
 /** ============================================================================
  *  Includes
@@ -65,98 +71,46 @@ extern PIN_Config BoardGpioInitTable[];
  *  Defines
  *  ==========================================================================*/
 
-/* Symbol by generic Board.c to include the correct PCB  specific Board.c */
-#define CC2650ST_0120
-  
-/* Identify as SensorTag */
-#define CC2650ST_7ID
-
-/* Same RF Configuration as 7x7 EM */
-#define CC2650EM_7ID
-
-/* This PCB version supports magnetometer */
-#define FEATURE_MAGNETOMETER
-
-/* External flash manufacturer and device ID */
-#define EXT_FLASH_MAN_ID            0xEF
-#define EXT_FLASH_DEV_ID            0x12
-
 /* Mapping of pins to board signals using general board aliases
  *      <board signal alias>                <pin mapping>
  */
-
-/* Discrete outputs */
-#define Board_LED1                  IOID_10
-#define Board_LED2                  IOID_15
-#define Board_BUZZER                IOID_21
-#define Board_LED_ON                1
-#define Board_LED_OFF               0
-#define Board_BUZZER_ON             1
-#define Board_BUZZER_OFF            0
-
-/* Discrete inputs */
-#define Board_KEY_LEFT              IOID_0
-#define Board_KEY_RIGHT             IOID_4
-#define Board_RELAY                 IOID_3
-
-/* Sensor outputs */
-#define Board_MPU_INT               IOID_7
-#define Board_TMP_RDY               IOID_1
-
+/* Leds */
+#define Board_LED_ON                        1               /* LEDs on CC2650 are active high */
+#define Board_LED_OFF                       0
+#define Board_LED1                          IOID_25         /* RF2.11 */
+#define Board_LED2                          IOID_27         /* RF2.13 */
+#define Board_MRDY                          IOID_7          /* RF1.2  */
+#define Board_SRDY                          IOID_6          /* RF1.4  */
+/* Button Board */
+#define Board_KEY_SELECT                    IOID_11         /* RF1.14 */
+#define Board_KEY_UP                        IOID_19         /* RF1.10 */
+#define Board_KEY_DOWN                      IOID_12         /* RF1.12 */
+#define Board_KEY_LEFT                      IOID_15         /* RF1.6  */
+#define Board_KEY_RIGHT                     IOID_18         /* RF1.8  */
+/* LCD  Board */
+#define Board_3V3_EN                        IOID_13         /* RF1.15 */
+#define Board_LCD_MODE                      IOID_4          /* RF1.11 */
+#define Board_LCD_RST                       IOID_5          /* RF1.13 */
+#define Board_LCD_CSN                       IOID_14         /* RF1.17 */
+/* UART Board */
+#define Board_UART_RX                       IOID_2          /* RF1.7  */
+#define Board_UART_TX                       IOID_3          /* RF1.9  */
+#define Board_UART_CTS                      IOID_0          /* RF1.3  */
+#define Board_UART_RTS                      IOID_21         /* RF2.18 */
+/* SPI Board */
+#define Board_SPI0_MISO                     IOID_8          /* RF1.20 */
+#define Board_SPI0_MOSI                     IOID_9          /* RF1.18 */
+#define Board_SPI0_CLK                      IOID_10         /* RF1.16 */
+#define Board_SPI0_CSN                      PIN_UNASSIGNED  /* RF1.14, SPI0_CSN set by LCD */
+#define Board_SPI1_MISO                     IOID_24         /* RF2.10 */
+#define Board_SPI1_MOSI                     IOID_23         /* RF2.5  */
+#define Board_SPI1_CLK                      IOID_30         /* RF2.12 */
+#define Board_SPI1_CSN                      PIN_UNASSIGNED  /* RF2.6  */
 /* I2C */
 #define Board_I2C0_SDA0             IOID_5
 #define Board_I2C0_SCL0             IOID_6
 #define Board_I2C0_SDA1             IOID_8
 #define Board_I2C0_SCL1             IOID_9
-
-/* SPI */
-#define Board_SPI_FLASH_CS          IOID_14
-#define Board_SPI_DEVPK_CS          IOID_20
-#define Board_FLASH_CS_ON           0
-#define Board_FLASH_CS_OFF          1
-#define Board_DEVPK_CS_ON           1
-#define Board_DEVPK_CS_OFF          0
-
-#define Board_SPI0_MISO             IOID_18
-#define Board_SPI0_MOSI             IOID_19
-#define Board_SPI0_CLK              IOID_17
-#define Board_SPI0_CSN              PIN_UNASSIGNED
-#define Board_SPI1_MISO             PIN_UNASSIGNED
-#define Board_SPI1_MOSI             PIN_UNASSIGNED
-#define Board_SPI1_CLK              PIN_UNASSIGNED
-#define Board_SPI1_CSN              PIN_UNASSIGNED
-
-/* UART when connected to SRF06EB */
-#define Board_EB_UART_TX            IOID_16
-#define Board_EB_UART_RX            IOID_17
-
-/* DevPack */
-#define Board_AUDIOFS_TDO           IOID_16
-#define Board_AUDIODO               IOID_22
-#define Board_DP2                   IOID_23
-#define Board_DP1                   IOID_24
-#define Board_DP0                   IOID_25
-#define Board_DP3                   IOID_27
-#define Board_DP4_UARTRX            IOID_28
-#define Board_DP5_UARTTX            IOID_29
-#define Board_DEVPK_ID              IOID_30
-
-/* Power control */
-#define Board_MPU_POWER             IOID_12
-#define Board_MPU_POWER_ON          1
-#define Board_MPU_POWER_OFF         0
-
-/* Audio */
-#define Board_MIC_POWER             IOID_13
-#define Board_MIC_POWER_ON          1
-#define Board_MIC_POWER_OFF         0
-#define Board_AUDIO_DI              IOID_2
-#define Board_AUDIO_CLK             IOID_11
-
-/* UART pins used by driver */
-#define Board_UART_TX               Board_DP5_UARTTX
-#define Board_UART_RX               Board_DP4_UARTRX
-
 /** ============================================================================
  *  Instance identifiers
  *  ==========================================================================*/
@@ -167,7 +121,10 @@ extern PIN_Config BoardGpioInitTable[];
 #define Board_SPI1                  CC2650_SPI1
 /* Generic UART instance identifiers */
 #define Board_UART                  CC2650_UART0
-
+/* Generic Crypto instance identifiers */
+#define Board_CRYPTO                CC2650_CRYPTO0
+/* Generic Watchdog instance identifiers */
+#define Board_WATCHDOG              CC2650_WATCHDOG0
 
 /** ============================================================================
  *  Number of peripherals and their names
@@ -190,7 +147,6 @@ typedef enum CC2650_CryptoName {
     CC2650_CRYPTO0 = 0,
     CC2650_CRYPTOCOUNT
 } CC2650_CryptoName;
-
 
 /*!
  *  @def    CC2650_SPIName
@@ -220,53 +176,8 @@ typedef enum CC2650_UdmaName {
     CC2650_UDMACOUNT
 } CC2650_UdmaName;
 
-/* 			TIMERS & PWM 		*/
-
-typedef enum CC2650_GPTimerName {
-    CC2650_GPTIMER0A = 0,
-    CC2650_GPTIMER0B,
-//  CC2650_GPTIMER1A,
-//  CC2650_GPTIMER1B,
-//  CC2650_GPTIMER2A,
-//  CC2650_GPTIMER2B,
-//  CC2650_GPTIMER3A,
-//  CC2650_GPTIMER3B,
-    CC2650_GPTIMERUNITSCOUNT
-} CC2650_GPTimerName;
-
-typedef enum CC2650_GPTimers {
-    CC2650_GPTIMER0 = 0,
-//  CC2650_GPTIMER1,
-//  CC2650_GPTIMER2,
-//  CC2650_GPTIMER3,
-    CC2650_GPTIMERCOUNT
-} CC2650_GPTimers;
-
-typedef enum CC2650_PWM {
-    CC2650_PWM0 = 0,
-    CC2650_PWM1,
-//  CC2650_PWM2,
-//  CC2650_PWM3,
-//  CC2650_PWM4,
-//  CC2650_PWM5,
-//  CC2650_PWM6,
-//  CC2650_PWM7,
-    CC2650_PWMCOUNT
-} CC2650_PWM;
-
-#define Board_PWMPIN0  IOID_25     //7x7 LED1
-#define Board_PWMPIN1  IOID_27     //7x7 LED2
-//#define Board_PWMPIN2  IOID_7    //7x7 LED3
-//#define Board_PWMPIN3  PIN_UNASSIGNED
-//#define Board_PWMPIN4  PIN_UNASSIGNED
-//#define Board_PWMPIN5  PIN_UNASSIGNED
-//#define Board_PWMPIN6  PIN_UNASSIGNED
-//#define Board_PWMPIN7  PIN_UNASSIGNED
-
-
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __BOARD_H__ */
+#endif /* __CC2650EM_H__ */

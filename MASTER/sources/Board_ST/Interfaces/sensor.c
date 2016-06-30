@@ -43,17 +43,19 @@
 #include "sensor.h"
 #include "bsp_i2c.h"
 
+
+#if defined(CC2650ST_0120)
 #include "ext_flash.h"
 #include "sensor_tmp007.h"
-#if defined(CC2650ST_0120)
 #include "sensor_hdc1000.h"
-#else
-#include "sensor_sht21.h"
-#endif
-
 #include "sensor_bmp280.h"
 #include "sensor_opt3001.h"
 #include "sensor_mpu9250.h"
+#else
+//#include "sensor_sht21.h"
+#endif
+
+
 
 /* -----------------------------------------------------------------------------
 *                                           Macros and constants
@@ -124,7 +126,7 @@ bool sensorWriteReg(uint8_t addr, uint8_t *pBuf, uint8_t nBytes)
 uint8_t sensorTestExecute(uint8_t testMap)
 {
   selfTestResult = 0;
-
+#if SENSORTAG_HW
   // 1. Temp sensor test
   if (testMap & ST_IRTEMP)
   {
@@ -194,7 +196,7 @@ uint8_t sensorTestExecute(uint8_t testMap)
       selfTestResult |= ST_FLASH;
     }
   }
-
+#endif
   return selfTestResult;
 }
 

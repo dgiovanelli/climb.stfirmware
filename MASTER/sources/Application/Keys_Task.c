@@ -116,7 +116,7 @@ static PIN_Config KeysPinTable[] =
 {
     Board_KEY_LEFT   | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
     Board_KEY_RIGHT  | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,        /* Button is active low          */
-    Board_RELAY      | PIN_INPUT_EN | PIN_PULLDOWN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,      /* Relay is active high          */
+   // Board_RELAY      | PIN_INPUT_EN | PIN_PULLDOWN | PIN_IRQ_BOTHEDGES | PIN_HYSTERESIS,      /* Relay is active high          */
 
     PIN_TERMINATE
 };
@@ -377,9 +377,9 @@ static void Key_callback(PIN_Handle handle, PIN_Id pinId)
 		keysTask_setEvent(KEY_RIGHT_EVT);
 	}
 
-	if(pinId == Board_RELAY){
-		keysTask_setEvent(KEY_RELAY_EVT);
-	}
+//	if(pinId == Board_RELAY){
+//		keysTask_setEvent(KEY_RELAY_EVT);
+//	}
 }
 
 /*********************************************************************
