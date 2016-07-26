@@ -617,6 +617,16 @@
 			<locationURI>TI_RTOS_DRIVERS_BASE/ti/drivers/pwm/PWMCC26XX.h</locationURI>
 		</link>
 		<link>
+			<name>Drivers/pwm/PWMTimerCC26XX.c</name>
+			<type>1</type>
+			<locationURI>TI_RTOS_DRIVERS_BASE/ti/drivers/pwm/PWMCC26XX.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/pwm/PWMTimerCC26XX.h</name>
+			<type>1</type>
+			<locationURI>TI_RTOS_DRIVERS_BASE/ti/drivers/pwm/PWMCC26XX.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/timer/GPTimerCC26XX.c</name>
 			<type>1</type>
 			<locationURI>TI_RTOS_DRIVERS_BASE/ti/drivers/timer/GPTimerCC26XX.c</locationURI>

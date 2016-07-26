@@ -333,7 +333,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="Board_ST/Devices|PROFILES/hiddev.c|PROFILES/simplekeys.h|PROFILES/oad.c|TOOLS/cc26xx_ble_app_oad.cmd|Application/CLIMBPerOb_old.c|cc26x0f128.lds|cc26x0f128.cmd|PROFILES/Climb/peripheralObserver.c|Startup/ST|PROFILES/oad_target_externalFlash.c|PROFILES/simplekeys.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Drivers/PWM.c|Board_ST/Devices|PROFILES/hiddev.c|PROFILES/simplekeys.h|PROFILES/oad.c|TOOLS/cc26xx_ble_app_oad.cmd|Application/CLIMBPerOb_old.c|cc26x0f128.lds|cc26x0f128.cmd|PROFILES/Climb/peripheralObserver.c|Startup/ST|PROFILES/oad_target_externalFlash.c|PROFILES/simplekeys.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

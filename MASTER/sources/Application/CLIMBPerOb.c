@@ -2300,16 +2300,24 @@ static void Climb_removeNode(uint8 indexToRemove, ClimbNodeType_t nodeType) {
  * @return  none
  */
 static void Climb_periodicTask() {
+	Climb_advertisedStatesCheck(); //this is only for counting onBoard children, USE THIS HERE ONLY FOR BEACON EVALUATION POURPOSES (ONLY_BEACON branch)
+
+	if(onBoardChildren){
+		PIN_setOutputValue(hGpioPin, Board_LED2, 1);
+	}else{
+		PIN_setOutputValue(hGpioPin, Board_LED2, 0);
+	}
+
 	Climb_nodeTimeoutCheck();
 	static uint8_t odd = 0;
 	if(atLeastOneAlert == TRUE){
 		PIN_setOutputValue(hGpioPin, Board_LED1, odd%2);
-		PIN_setOutputValue(hGpioPin, Board_LED2, odd%2);
+		//PIN_setOutputValue(hGpioPin, Board_LED2, odd%2);
 		PIN_setOutputValue(hGpioPin, Board_MRDY, odd%2);
 		PIN_setOutputValue(hGpioPin, Board_SRDY, odd%2);
 	}else{
 		PIN_setOutputValue(hGpioPin, Board_LED1, 0);
-		PIN_setOutputValue(hGpioPin, Board_LED2, 0);
+		//PIN_setOutputValue(hGpioPin, Board_LED2, 0);
 		PIN_setOutputValue(hGpioPin, Board_MRDY, odd%2);
 		PIN_setOutputValue(hGpioPin, Board_SRDY, 0);
 	}
@@ -2643,9 +2651,9 @@ static void destroyChildNodeList() {
 			case ON_BOARD:
 #warning maybe it is better to destroy the list regardless of the stat
 			case ALERT:
-				if(!Util_isActive(&goToSleepClock)){ //remove the node only if it is an automatic switch off
+				//if(!Util_isActive(&goToSleepClock)){ //remove the node only if it is an automatic switch off
 					Climb_removeNode(i, CLIMB_CHILD_NODE); //rimuovi il nodo
-				}
+				//}
 				break;
 			case GOING_TO_SLEEP:
 				Climb_removeNode(i, CLIMB_CHILD_NODE); //rimuovi il nodo
