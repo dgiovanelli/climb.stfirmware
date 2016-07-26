@@ -1292,7 +1292,19 @@ static void BLE_ConnectionEventHandler(void)
  */
 static void BLE_AdvertiseEventHandler(void) {
 	//temp_tick_3 = Clock_getTicks();
-	Util_startClock(&preAdvClock);
+	//Util_startClock(&preAdvClock);
+
+#ifdef CLIMB_DEBUG
+	adv_counter++;
+
+	if ((adv_counter - 1) % 60 == 0) {
+		batteryLev = AONBatMonBatteryVoltageGet();
+		batteryLev = (batteryLev * 125) >> 5;
+	}
+
+	Climb_updateMyBroadcastedState(nodeState); //update adv data every adv event to update adv_counter value. Since the argument is nodeState this function call doesn't modify the actual state of this node
+#endif
+
 
 #ifdef PRINTF_ENABLED
 		System_printf("\nAdvertise event\n");
@@ -2231,16 +2243,16 @@ static void Climb_preAdvEvtHandler(){
 #ifdef HIGH_PERFORMANCE
 	//GAPObserverRole_CancelDiscovery();
 #endif
-#ifdef CLIMB_DEBUG
-	adv_counter++;
-
-	if ((adv_counter - 1) % 60 == 0) {
-		batteryLev = AONBatMonBatteryVoltageGet();
-		batteryLev = (batteryLev * 125) >> 5;
-	}
-
-	Climb_updateMyBroadcastedState(nodeState); //update adv data every adv event to update adv_counter value. Since the argument is nodeState this function call doesn't modify the actual state of this node
-#endif
+//#ifdef CLIMB_DEBUG
+//	adv_counter++;
+//
+//	if ((adv_counter - 1) % 60 == 0) {
+//		batteryLev = AONBatMonBatteryVoltageGet();
+//		batteryLev = (batteryLev * 125) >> 5;
+//	}
+//
+//	Climb_updateMyBroadcastedState(nodeState); //update adv data every adv event to update adv_counter value. Since the argument is nodeState this function call doesn't modify the actual state of this node
+//#endif
 
 	if(!scanning){
 		if(beaconActive){
